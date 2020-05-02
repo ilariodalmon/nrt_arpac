@@ -1,5 +1,8 @@
 {
   "name": "arpac_nrt",
-  "integrations": {},
-  "type": "angular"
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular",
+  "id": "d4168668"
 }

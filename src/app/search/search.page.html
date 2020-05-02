@@ -1,0 +1,76 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Near Real Time Campania ARPAC
+    </ion-title>
+    <ion-button (click)="goTo('home')" size="small">
+      Home
+      <ion-icon name="home-outline"></ion-icon>
+    </ion-button>
+    <ion-searchbar [(ngModel)]="filterTerm" animated></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Blank</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div id="container" *ngIf="this.filterTerm">
+    <ion-card *ngFor="let d of filterItems(filterTerm);">
+        <ion-card-header>
+          <ion-label>
+            <b>{{d.descrizione}}</b>
+            <br>
+            ({{d.stazione}})
+          </ion-label>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row *ngFor="let inq of d.inquinanti">
+              <ion-col>
+                <ion-label (click)="changeView(d.stazione,inq.inquinante)">
+                  Inquinante: {{inq.inquinante}}
+                </ion-label>
+                <ion-row id="{{d.stazione}}{{inq.inquinante}}" style="display: none;" >
+                  <ion-row *ngFor="let inqList of inq.dati">
+                    {{inqList.valore}}{{inq.um}} {{inqList.data_ora.substring(0,19)}}
+                  </ion-row>
+                </ion-row>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+    </ion-card>
+  </div>
+ 
+  <div id="container" *ngIf="!this.filterTerm">
+    <ion-card *ngFor="let d of shown_array;">
+      <ion-card-header>
+        <ion-label>
+          <b>{{d.descrizione}}</b>
+          <br>
+          ({{d.stazione}})
+        </ion-label>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row *ngFor="let inq of d.inquinanti">
+            <ion-col>
+              <ion-label (click)="changeView(d.stazione,inq.inquinante)">
+                Inquinante: {{inq.inquinante}}
+              </ion-label>
+              <ion-row id="{{d.stazione}}{{inq.inquinante}}" style="display: none;" >
+                <ion-row *ngFor="let inqList of inq.dati">
+                  {{inqList.valore}}{{inq.um}} {{inqList.data_ora.substring(0,19)}}
+                </ion-row>
+              </ion-row>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>
