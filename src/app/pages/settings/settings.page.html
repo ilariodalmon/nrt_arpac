@@ -26,7 +26,7 @@
       <ion-card-subtitle>Qui puoi attivare le notifiche</ion-card-subtitle>
     </ion-card-header>
     <ion-card-content>
-      <ion-toggle [(ngModel)]="prefsNotifica" name="notifica" (ionChange)="onChange($event)" value={{this.prefsNotifica}}>
+      <ion-toggle [(ngModel)]="prefsNotifica" name="notifica" (ionChange)="onChange($event)" value={{!this.prefsNotifica}}>
       </ion-toggle>
     </ion-card-content>
   </ion-card>

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { AppPreferences } from '@ionic-native/app-preferences/ngx';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
+import { BgService } from '../../services/bg.service';
 
 @Component({
   selector: 'app-settings',
@@ -17,12 +18,14 @@ export class SettingsPage implements OnInit {
 
   constructor(
     private prefs: AppPreferences,
-    private ns: NativeStorage
+    private ns: NativeStorage,
+    private bg: BgService
   ) { }
 
   ngOnInit() {
     this.getAllPrefs();
     this.getStazioni();
+    this.bg.startNotifications(this.prefsNotifica, this.prefsEveryNot);
   }
 
   getAllPrefs(){
@@ -46,8 +49,15 @@ export class SettingsPage implements OnInit {
   }
 
   onChange(event: any){
-    console.log(event.target.name, event.target.value);
-    this.prefs.store(event.target.name, event.target.value);
+    const key = event.target.name;
+    const value = event.target.value;
+    if (key === 'every'){
+      this.bg.startNotifications(this.prefsNotifica, value);
+    } else if (key === 'notifica'){
+      this.bg.startNotifications(value, this.prefsEveryNot);
+    }
+    console.log(key, value);
+    this.prefs.store(key, value);
   }
 
 }

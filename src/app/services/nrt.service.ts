@@ -4,6 +4,7 @@ import { File } from '@ionic-native/file/ngx';
 import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer/ngx';
 import { FileOpener } from '@ionic-native/file-opener/ngx';
 import { NrtOrg } from '../classes/nrt-org';
+import { AppPreferences } from '@ionic-native/app-preferences/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,12 @@ export class NrtService {
   actualData: NrtOrg[];
   actualDataTime: string;
 
-  constructor(private ft: FileTransfer, private file: File, private fo: FileOpener, private ns: NativeStorage) {
+  constructor(
+    private ft: FileTransfer,
+    private file: File,
+    private fo: FileOpener,
+    private ns: NativeStorage,
+    private prefs: AppPreferences) {
   }
 
   ////////////////////////////////////////////////////////////// RISTRUTTURIAMO /////////////////////////////////////////////////////////
@@ -31,6 +37,9 @@ export class NrtService {
       this.fsCsvToNrtOrgArray().then((nrtOrgArray: NrtOrg[]) => {
         console.log('got array: ', nrtOrgArray);
         if (nrtOrgArray !== undefined){
+          this.prefs.fetch('stazione').then((stazione) => {
+            this.ns.setItem('latest_nrt_custom', nrtOrgArray.find(x => x.stazione === stazione));
+          });
           this.ns.setItem('latest_nrt_data', { array: nrtOrgArray, time: (new Date().toISOString()) }).then(_ => {
             console.log('successfully saved nrtOrgArray on native storage as \'latest_nrt_data\'');
           }).catch((err) => {

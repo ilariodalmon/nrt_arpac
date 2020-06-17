@@ -24,13 +24,14 @@ export class SearchPage implements OnInit {
    this.ns.getItem('latest_nrt_data').then((data) => {
       console.log(data);
       this.all = data.array;
+      this.custom = this.all;
     });
   }
 
   filterItems(searchTerm: string) {
     return this.all.filter(item => {
       return (item.stazione.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 &&
-              item.descrizione.toLowerCase().indexOf(searchTerm.toLowerCase()) < -1);
+              item.descrizione.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1);
     });
   }
 
