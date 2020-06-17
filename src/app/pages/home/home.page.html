@@ -1,0 +1,54 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Near-Real-Time Arpac
+    </ion-title>
+    <ion-button (click)='refreshData()'>
+      <ion-icon  name="refresh-circle-outline"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">NRT ARPAC</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div id="container">
+    
+    <ion-card *ngIf="this.custom != undefined">
+      <ion-card-header>
+        Stazione preferita:
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-label>
+                <b>{{this.custom.descrizione}}</b>
+                <br>
+                ({{this.custom.stazione}})
+              </ion-label>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngFor="let inq of this.custom.inquinanti">
+            <ion-col>
+              <ion-label (click)="changeView(this.prefsStazione,inq.inquinante)">
+                Inquinante: {{inq.inquinante}}
+              </ion-label>
+              <ion-row id="{{this.prefsStazione}}{{inq.inquinante}}" style="display: none;">
+                <ion-row *ngFor="let inqList of inq.dati">
+                  {{inqList.valore}} {{inq.um}} {{inqList.data_ora.substring(0,19)}}
+                </ion-row>
+              </ion-row>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+  
+</ion-content>

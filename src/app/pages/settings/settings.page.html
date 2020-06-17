@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Impostazioni</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- PREFS: Stazione -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Stazione preferita</ion-card-title>
+      <ion-card-subtitle>Qui puoi cambiare la stazione preferita</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-select [(ngModel)]="prefsStazione" name="stazione" (ionChange)='onChange($event)'>
+        <ion-select-option *ngFor="let s of stazioni | slice:1" value="{{s[0]}}">{{s[0]|toArray|slice:13}}</ion-select-option>
+      </ion-select>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- PREFS: Notifica -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Attiva notifiche</ion-card-title>
+      <ion-card-subtitle>Qui puoi attivare le notifiche</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-toggle [(ngModel)]="prefsNotifica" name="notifica" (ionChange)="onChange($event)" value={{this.prefsNotifica}}>
+      </ion-toggle>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- (only if Notifica) => PREFS: Ogni Quanto Notifica -->
+  <ion-card *ngIf="this.prefsNotifica != undefined && this.prefsNotifica"> 
+    <ion-card-header>
+      <ion-card-title>Intervallo di notifica</ion-card-title>
+      <ion-card-subtitle>Seleziona l'intervallo di tempo tra le notifiche</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-select name="every" (ionChange)="onChange($event)">
+        <ion-select-option *ngFor="let item of [].constructor(59); let i = index" value={{i+1}} >{{i+1}}</ion-select-option>
+      </ion-select>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

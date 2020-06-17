@@ -4,9 +4,9 @@ export class NrtOrg {
     inquinanti: {
         inquinante: string,
         um: string,
-        dati:{
+        dati: {
             data_ora: string,
             valore: number,
         }[]
-    }[]
+    }[];
 }
