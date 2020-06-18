@@ -4,7 +4,6 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { AppPreferences } from '@ionic-native/app-preferences/ngx';
 import { NrtOrg } from '../classes/nrt-org';
 import { NrtService } from './nrt.service';
-import { triggerAsyncId } from 'async_hooks';
 
 @Injectable({
   providedIn: 'root'

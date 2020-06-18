@@ -51,8 +51,17 @@ export class HomePage {
       });
     });
   }
+
   refreshData(){
     this.nrt.refreshData();
+    this.ns.getItem('latest_nrt_data').then((data) => {
+      console.log(data);
+      this.all = data.array;
+      this.lastFetch = data.time;
+      this.getPrefsStazione().then(_ => {
+        this.getDataStazione(this.prefsStazione);
+      });
+    });
   }
 
   testPrefs(){

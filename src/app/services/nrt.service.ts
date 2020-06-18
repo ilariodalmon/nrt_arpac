@@ -58,11 +58,17 @@ export class NrtService {
     this.ftc = this.ft.create();
     await this.ftc.download(this.DATI_GREZZI_NEAR_REAL_TIME_URL, this.file.dataDirectory + this.formatDate + '.csv').then((entry) => {
       console.log('downloadLatestNrtCsv ok => ', entry);
+      this.ftc.abort();
     }).catch((err) => {
       console.log('downloadLatestNrtCsv bad => ', err);
       this.ftc.abort();
+      this.file.listDir(this.file.dataDirectory, '.').then(list => {
+        console.log(list);
+      });
+      this.file.removeFile(this.file.dataDirectory, this.formatDate + '.csv').then(_ => {
+      });
+      this.downloadLatestNrtCsv();
     });
-    this.ftc.abort();
   }
 
   async fsCsvToNrtOrgArray() {
@@ -144,5 +150,7 @@ export class NrtService {
   async openTodayData() {
     await this.fo.open(this.file.dataDirectory + this.formatDate + '.csv', 'text/csv');
   }
+
+  
 
 }

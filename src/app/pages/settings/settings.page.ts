@@ -51,13 +51,15 @@ export class SettingsPage implements OnInit {
   onChange(event: any){
     const key = event.target.name;
     const value = event.target.value;
-    if (key === 'every'){
-      this.bg.startNotifications(this.prefsNotifica, value);
-    } else if (key === 'notifica'){
-      this.bg.startNotifications(value, this.prefsEveryNot);
-    }
     console.log(key, value);
-    this.prefs.store(key, value);
+    this.prefs.store(key, value).then(_  => {
+      this.getAllPrefs();
+      if (key === 'every'){
+        this.bg.startNotifications(this.prefsNotifica, value);
+      } else if (key === 'notifica'){
+        this.bg.startNotifications(value, this.prefsEveryNot);
+      }
+    });
   }
 
 }

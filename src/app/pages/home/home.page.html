@@ -51,5 +51,23 @@
     </ion-card>
 
   </div>
+
+<div *ngIf="this.custom == undefined">
+  <ion-card>
+    <ion-card-content>
+      <ion-card-title>Scegli una stazione in impostazioni</ion-card-title>
+    </ion-card-content>
+  </ion-card>
+</div>
   
+  
+<ion-footer *ngIf="this.lastFetch != undefined">
+  <ion-card>
+    <ion-card-content>
+      <ion-card-title>Ultimo aggiornamento</ion-card-title>
+      <ion-card-subtitle>{{this.lastFetch}}</ion-card-subtitle>
+    </ion-card-content>
+  </ion-card>
+</ion-footer>
+
 </ion-content>
