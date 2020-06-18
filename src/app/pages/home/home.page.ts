@@ -52,6 +52,14 @@ export class HomePage {
     });
   }
 
+  // Colori soglie
+  getColore(inquinante: string){
+    const target = this.custom.inquinanti.find(x => x.inquinante === inquinante);
+    const lastVal = target.dati[target.dati.length - 1].valore;
+    const color = this.nrt.getColoreByValore(target.inquinante, lastVal);
+    return color;
+  }
+
   refreshData(){
     this.nrt.refreshData();
     this.ns.getItem('latest_nrt_data').then((data) => {
@@ -60,15 +68,6 @@ export class HomePage {
       this.lastFetch = data.time;
       this.getPrefsStazione().then(_ => {
         this.getDataStazione(this.prefsStazione);
-      });
-    });
-  }
-
-  testPrefs(){
-    this.msg = 'ho la minchia blu';
-    this.setUserPrefs('asd', 'minchia').then(_ => {
-      this.getUserPrefs('asd').then((p) => {
-        this.msg = p;
       });
     });
   }

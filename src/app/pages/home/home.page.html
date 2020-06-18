@@ -3,9 +3,9 @@
     <ion-title>
       Near-Real-Time Arpac
     </ion-title>
-    <ion-button (click)='refreshData()' slot='end'>
+    <ion-button (click)="refreshData()" slot="end">
       ricarica
-      <ion-icon  name="refresh-circle-outline"></ion-icon>
+      <ion-icon name="refresh-circle-outline"></ion-icon>
     </ion-button>
   </ion-toolbar>
 </ion-header>
@@ -17,51 +17,45 @@
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    
-    <ion-card *ngIf="this.custom != undefined">
-      <ion-card-header>
-        Stazione preferita:
-      </ion-card-header>
+  <div id="container"></div>
+
+  <div *ngIf="this.custom == undefined">
+    <ion-card>
       <ion-card-content>
+        <ion-card-title>Scegli una stazione in impostazioni</ion-card-title>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="this.custom != undefined">
+    <ion-item-group>
+      <ion-item>
+        <ion-title>
+          {{this.custom.descrizione}}
+        </ion-title>
+      </ion-item>
+      <ion-item *ngFor="let inq of this.custom.inquinanti" >
         <ion-grid>
           <ion-row>
             <ion-col>
-              <ion-label>
-                <b>{{this.custom.descrizione}}</b>
-                <br>
-                ({{this.custom.stazione}})
-              </ion-label>
+              <ion-title>
+                {{inq.inquinante}}
+              </ion-title>
             </ion-col>
-          </ion-row>
-          <ion-row *ngFor="let inq of this.custom.inquinanti">
-            <ion-col>
-              <ion-label (click)="changeView(this.prefsStazione,inq.inquinante)">
-                Inquinante: {{inq.inquinante}}
-              </ion-label>
-              <ion-row id="{{this.prefsStazione}}{{inq.inquinante}}" style="display: none;">
-                <ion-row *ngFor="let inqList of inq.dati">
-                  {{inqList.valore}} {{inq.um}} {{inqList.data_ora.substring(0,19)}}
-                </ion-row>
-              </ion-row>
+            <ion-col id="valore{{inq}}" [ngStyle]="{'color': getColore(inq.inquinante)}"> 
+                {{inq.dati[inq.dati.length-1].valore}} {{inq.um}}
+            </ion-col>
+            <ion-col> 
+              {{inq.dati[inq.dati.length-1].data_ora}}
             </ion-col>
           </ion-row>
         </ion-grid>
-      </ion-card-content>
-    </ion-card>
-
+      </ion-item>
+    </ion-item-group>
   </div>
+</ion-content>
 
-<div *ngIf="this.custom == undefined">
-  <ion-card>
-    <ion-card-content>
-      <ion-card-title>Scegli una stazione in impostazioni</ion-card-title>
-    </ion-card-content>
-  </ion-card>
-</div>
-  
-  
-<ion-footer *ngIf="this.lastFetch != undefined">
+<ion-footer *ngIf="this.lastFetch != undefined" style="bottom: 0;">
   <ion-card>
     <ion-card-content>
       <ion-card-title>Ultimo aggiornamento</ion-card-title>
@@ -69,5 +63,3 @@
     </ion-card-content>
   </ion-card>
 </ion-footer>
-
-</ion-content>

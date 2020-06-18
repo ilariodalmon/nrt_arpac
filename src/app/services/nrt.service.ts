@@ -151,6 +151,64 @@ export class NrtService {
     await this.fo.open(this.file.dataDirectory + this.formatDate + '.csv', 'text/csv');
   }
 
-  
+  getColoreByValore(inquinante: string, valore: number): string {
+    if (valore <= 0){
+      return '#40E0D0';
+    }
+  // molecola - mg/m^2
+    const soglie = {
+      // microgrammi
+      PM10: [
+        [0, 10, '#40E0D0'],    // turchese
+        [10, 25, '#008000'],   // verde
+        [25, 50, '#FFFF00'],   // giallo
+        [50, 75, '#FF0000'],   // rosso
+        [75, 999999, '#800080']// viola
+      ],
+      // microgrammi
+      'PM2.5': [ // ????? ANNUO ?????
+        [0, 15, '#008000'],
+        [15, 25, '#FFFF00'],
+        [25, 50, '#FF0000'],
+        [50, 999999, '#800080']
+      ],
+      // microgrammi
+      Benzene: [
+        [0, 2, '#008000'],
+        [2, 3.5, '#FF0000'],
+        [3.5, 999999, '#800080'],
+      ],
+      // milligrammi
+      CO: [
+        [0, 5, '#008000'],
+        [5, 7, '#FF0000'],
+        [7, 99999, '#FF0000'],
+      ],
+      SO2: [
+        [0, 8, '#40E0D0'],
+        [8, 12, '#008000'],
+        [12, 50, '#FFFF00'],
+        [50, 75, '#FF0000'],
+        [75, 999999, '#800080']
+      ],
+      NO2: [
+        [0, 19, '#40E0D0'],
+        [19, 32, '#008000'],
+        [32, 200, '#FFFF00'],
+        [200, 300, '#FF0000'],
+        [300, 999999, '#800080']
+      ]
+
+    };
+
+    let code: string;
+    const arraySoglie = soglie[inquinante];
+    arraySoglie.forEach((elem: any[]) => {
+      if (valore > elem[0] && valore < elem[1]){
+        code = elem[2];
+      }
+    });
+    return code;
+  }
 
 }
