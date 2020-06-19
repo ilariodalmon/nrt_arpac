@@ -32,7 +32,7 @@
   </ion-card>
 
   <!-- (only if Notifica) => PREFS: Ogni Quanto Notifica -->
-  <ion-card *ngIf="this.prefsNotifica != undefined && this.prefsNotifica"> 
+  <ion-card *ngIf="this.prefsNotifica != undefined && this.prefsNotifica && 0"> 
     <ion-card-header>
       <ion-card-title>Intervallo di notifica</ion-card-title>
       <ion-card-subtitle>Seleziona l'intervallo di tempo tra le notifiche</ion-card-subtitle>
@@ -45,3 +45,18 @@
   </ion-card>
 
 </ion-content>
+
+<ion-footer style="bottom: 0;">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+          <ion-button size="full" (click)="this.resetPrefs()">
+            Resetta preferenze
+          </ion-button>
+          <ion-button size="full" (click)="this.deleteCache()">
+            Cancella cache dati
+          </ion-button>
+        </ion-col>
+        </ion-row>
+      </ion-grid>
+</ion-footer>

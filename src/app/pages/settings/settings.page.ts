@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { AppPreferences } from '@ionic-native/app-preferences/ngx';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { BgService } from '../../services/bg.service';
+import { NrtService } from '../../services/nrt.service';
 
 @Component({
   selector: 'app-settings',
@@ -19,10 +20,14 @@ export class SettingsPage implements OnInit {
   constructor(
     private prefs: AppPreferences,
     private ns: NativeStorage,
-    private bg: BgService
+    private bg: BgService,
+    private nrt: NrtService
   ) { }
 
   ngOnInit() {
+  }
+
+  ionViewWillEnter(){
     this.getAllPrefs();
     this.getStazioni();
     this.bg.startNotifications(this.prefsNotifica, this.prefsEveryNot);
@@ -60,6 +65,19 @@ export class SettingsPage implements OnInit {
         this.bg.startNotifications(value, this.prefsEveryNot);
       }
     });
+  }
+
+  resetPrefs(){
+    this.prefs.remove('stazione');
+    this.prefs.remove('notifica');
+    this.prefs.remove('every');
+    this.prefsEveryNot = null;
+    this.prefsNotifica = null;
+    this.prefsStazione = null;
+  }
+
+  deleteCache(){
+    this.nrt.deleteCache();
   }
 
 }

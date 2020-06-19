@@ -17,24 +17,25 @@ export class BgService {
     private ns: NativeStorage
   ) { }
 
-  getText(){
-    this.nrt.refreshData().then(_ => {
-      this.prefs.fetch('stazione').then((stazione) => {
-        this.ns.getItem('latest_nrt_custom').then((custom: NrtOrg) => {
-          return custom.inquinanti.pop();
+  async getText(){
+        return await this.ns.getItem('latest_nrt_custom').then((custom: NrtOrg) => {
+          let out = '';
+          custom.inquinanti.forEach((inq) => {
+            out += '[' + inq.inquinante + '] ' + inq.dati.pop().valore + ' ' + inq.um + '\n';
+          });
+          out += this.nrt.getWorstText(custom);
+          return out;
         }).catch((noCustom) => {
           return 'NULL';
         });
-      });
-    });
   }
 
-  startNotifications(ok: boolean, time: number){
+  async startNotifications(ok: boolean, time: number){
     if (ok){
       this.localNotification.schedule({
-        text: 'lol' + this.getText(),
-        sound: 'file://beef.caf',
-        trigger: { in: time }
+        text: await this.getText(),
+        sound: 'file://sound.mp3',
+        trigger: { every: { minute: 0 } },
       });
     }
   }

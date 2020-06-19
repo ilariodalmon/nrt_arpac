@@ -16,15 +16,15 @@
   </ion-header>
 
   <div id="container" *ngIf="this.filterTerm">
-    <ion-card *ngFor="let d of filterItems(filterTerm);">
-        <ion-card-header>
+    <ion-card *ngFor="let d of filterItems(this.filterTerm);">
+        <ion-card-header (click)="changeView(d.stazione,'')" >
           <ion-label>
             <b>{{d.descrizione}}</b>
             <br>
             ({{d.stazione}})
           </ion-label>
         </ion-card-header>
-        <ion-card-content>
+        <ion-card-content id="{{d.stazione}}" style="display: none;">
           <ion-grid>
             <ion-row *ngFor="let inq of d.inquinanti">
               <ion-col>
@@ -44,15 +44,15 @@
   </div>
  
   <div id="container" *ngIf="!this.filterTerm">
-    <ion-card *ngFor="let d of custom;">
-      <ion-card-header>
+    <ion-card *ngFor="let d of all;">
+      <ion-card-header (click)="changeView(d.stazione,'')" >
         <ion-label>
           <b>{{d.descrizione}}</b>
           <br>
           ({{d.stazione}})
         </ion-label>
       </ion-card-header>
-      <ion-card-content>
+      <ion-card-content id="{{d.stazione}}" style="display: none;">
         <ion-grid>
           <ion-row *ngFor="let inq of d.inquinanti">
             <ion-col>

@@ -19,6 +19,7 @@ export class NrtService {
   ftc: FileTransferObject;
   actualData: NrtOrg[];
   actualDataTime: string;
+  workDir = 'nrt_arpac';
 
   constructor(
     private ft: FileTransfer,
@@ -56,13 +57,14 @@ export class NrtService {
 
   async downloadLatestNrtCsv() {
     this.ftc = this.ft.create();
-    await this.ftc.download(this.DATI_GREZZI_NEAR_REAL_TIME_URL, this.file.dataDirectory + this.formatDate + '.csv').then((entry) => {
+    await this.ftc.download(this.DATI_GREZZI_NEAR_REAL_TIME_URL, this.file.dataDirectory
+      + this.workDir + '/' + this.formatDate + '.csv').then((entry) => {
       console.log('downloadLatestNrtCsv ok => ', entry);
       this.ftc.abort();
     }).catch((err) => {
       console.log('downloadLatestNrtCsv bad => ', err);
       this.ftc.abort();
-      this.file.listDir(this.file.dataDirectory, '.').then(list => {
+      this.file.listDir(this.file.dataDirectory, 'nrt_arpac').then(list => {
         console.log(list);
       });
       this.file.removeFile(this.file.dataDirectory, this.formatDate + '.csv').then(_ => {
@@ -72,7 +74,7 @@ export class NrtService {
   }
 
   async fsCsvToNrtOrgArray() {
-    return await this.file.readAsText(this.file.dataDirectory, this.formatDate + '.csv').then(async (result) => {
+    return await this.file.readAsText(this.file.dataDirectory + this.workDir, this.formatDate + '.csv').then(async (result) => {
       const array = result.split('\n').map(x => x.split(','));
       const nrtArray = new Array<NrtOrg>();
       // OTTENGO TUTTI I NOMI
@@ -105,7 +107,7 @@ export class NrtService {
           // OTTENGO TUTTI QUELLI CON LO STESSO (NOME X E) INQUINANTE Z
           const filByInq = filByNome.filter(el => el[2] === inq);
           // SALVO L'ARRAY DEI DATI E ORA
-          const dati = filByInq.map(function(m) {
+          const dati = filByInq.map((m) => {
             return {
               data_ora: m[4],
               valore: m[5]
@@ -135,7 +137,8 @@ export class NrtService {
   // NativeStorage => "lista_stazioni"
   async getStazioni() {
     this.ftc = this.ft.create();
-    await this.ftc.download(this.STAZIONI_NRT_URL, this.file.dataDirectory + 'lista_stazioni' + '.csv').then((entry) => {
+    await this.ftc.download(this.STAZIONI_NRT_URL, this.file.dataDirectory
+      + this.workDir + '/' + 'lista_stazioni' + '.csv').then((entry) => {
       this.file.readAsText(this.file.dataDirectory, 'lista_stazioni' + '.csv').then(async (result) => {
         const stazioni = result.split('\n').map(x => x.split(','));
         await this.ns.setItem('lista_stazioni', stazioni);
@@ -148,7 +151,7 @@ export class NrtService {
   }
 
   async openTodayData() {
-    await this.fo.open(this.file.dataDirectory + this.formatDate + '.csv', 'text/csv');
+    await this.fo.open(this.file.dataDirectory + this.workDir + '/' + this.formatDate + '.csv', 'text/csv');
   }
 
   getColoreByValore(inquinante: string, valore: number): string {
@@ -209,6 +212,52 @@ export class NrtService {
       }
     });
     return code;
+  }
+
+  getTextByColore(colore: string): [number, string] {
+    switch (colore) {
+      case '#40E0D0':
+        return [1, 'Valori ottimi, scendi e corri!'];
+
+      case '#008000':
+        return [2, 'Valori buoni, passeggia, fai cose..'];
+
+      case '#FFFF00':
+        return [3, 'Valori così così, al limite'];
+
+      case '#FF0000':
+        return [4, 'Non uscire, valori oltre il limite'];
+
+      case '#800080':
+        return [5, 'Amico scappa o chiuditi dentro, sono serio'];
+    }
+  }
+
+  getTextByNumber(n: number) {
+    const diz = {
+      1: 'Valori ottimi, scendi e corri!',
+      2: 'Valori buoni, passeggia, fai cose..',
+      3: 'Valori così così, al limite',
+      4:  'Non uscire, valori oltre il limite',
+      5: 'Amico scappa o chiuditi dentro, sono serio'
+    };
+
+    return diz[n];
+  }
+
+  getWorstText(array: NrtOrg) {
+    let worst = 0;
+    array.inquinanti.forEach((inq) => {
+      const val = this.getTextByColore(this.getColoreByValore(inq.inquinante, inq.dati.pop().valore));
+      if (val[0] > worst) {
+        worst = val[0];
+      }
+    });
+    return this.getTextByNumber(worst);
+  }
+
+  deleteCache(){
+    this.file.removeRecursively(this.file.dataDirectory, 'nrt_arpac');
   }
 
 }
