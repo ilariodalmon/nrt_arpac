@@ -29,7 +29,9 @@ export class AppComponent {
   }
 
   initData(){
-    this.nrt.refreshData();
+    this.nrt.checkDirs().then(_ => {
+      this.nrt.refreshData();
+    });
   }
 
 }

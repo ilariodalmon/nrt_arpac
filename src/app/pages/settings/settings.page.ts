@@ -4,6 +4,7 @@ import { AppPreferences } from '@ionic-native/app-preferences/ngx';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { BgService } from '../../services/bg.service';
 import { NrtService } from '../../services/nrt.service';
+import { File } from '@ionic-native/file/ngx';
 
 @Component({
   selector: 'app-settings',
@@ -21,7 +22,8 @@ export class SettingsPage implements OnInit {
     private prefs: AppPreferences,
     private ns: NativeStorage,
     private bg: BgService,
-    private nrt: NrtService
+    private nrt: NrtService,
+    private file: File
   ) { }
 
   ngOnInit() {
@@ -77,7 +79,16 @@ export class SettingsPage implements OnInit {
   }
 
   deleteCache(){
-    this.nrt.deleteCache();
+    this.ns.remove('latest_nrt_data');
+    this.ns.remove('custom_nrt_data');
+    this.ns.remove('lista_stazioni');
+    this.file.removeFile(this.file.dataDirectory, 'lista_stazioni.csv');
+    this.file.removeRecursively(this.file.dataDirectory, 'nrt_arpac').then(_ => {
+      this.file.createDir(this.file.dataDirectory, 'nrt_arpac', true);
+    });
+    this.file.listDir(this.file.dataDirectory, '.').then((dir) => {
+      console.log(dir);
+    });
   }
 
 }
