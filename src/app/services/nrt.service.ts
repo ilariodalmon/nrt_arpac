@@ -51,6 +51,9 @@ export class NrtService {
     fetch('https://www.dalmon.cloud/cors-proxy/nrt_arpac.php', opts).then((res: any) => {
       return res.text();
     }).then((res) => {
+      if ('Warning' in res){
+        return;
+      }
       const arr = this.csvToNrtClass(res);
       this.prefs.fetch('stazione').then((stazione) => {
         const custom = arr.find((x) => x.stazione === stazione);
@@ -196,7 +199,11 @@ export class NrtService {
     fetch('https://www.dalmon.cloud/cors-proxy/nrt_arpac.php', opts).then((res: any) => {
       return res.text();
     }).then((res) => {
+      if ('Warning' in res){
+        return;
+      }
       const stazioni = res.split('\n').map(x => x.split(','));
+      console.log(stazioni);
       this.ns.setItem('lista_stazioni', stazioni);
       this.file.removeFile(this.workDir, this.formatDate + '.csv').then(_ => {
         this.file.writeFile(this.workDir, 'lista_stazioni.csv', stazioni);

@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { AppPreferences } from '@ionic-native/app-preferences/ngx';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { BgService } from '../../services/bg.service';
-import { NrtService } from '../../services/nrt.service';
 import { File } from '@ionic-native/file/ngx';
 
 @Component({
@@ -22,17 +21,13 @@ export class SettingsPage implements OnInit {
     private prefs: AppPreferences,
     private ns: NativeStorage,
     private bg: BgService,
-    private nrt: NrtService,
     private file: File
-  ) { }
+  ) {
+   }
 
   ngOnInit() {
-  }
-
-  ionViewWillEnter(){
     this.getAllPrefs();
     this.getStazioni();
-    this.bg.startNotifications(this.prefsNotifica, this.prefsEveryNot);
   }
 
   getAllPrefs(){
@@ -40,7 +35,7 @@ export class SettingsPage implements OnInit {
       this.prefsStazione = data;
     });
     this.prefs.fetch('notifica').then((data: boolean) => {
-      this.prefsNotifica = data;
+      this.prefsNotifica = (data || false);
     });
     this.prefs.fetch('every').then((data: number) => {
       this.prefsEveryNot = data;
@@ -50,15 +45,12 @@ export class SettingsPage implements OnInit {
   getStazioni(){
     this.ns.getItem('lista_stazioni').then((stazioni) => {
       this.stazioni = stazioni;
-    }).catch((err) => {
-      console.log('Error', err);
     });
   }
 
   onChange(event: any){
     const key = event.target.name;
     const value = event.target.value;
-    console.log(key, value);
     this.prefs.store(key, value).then(_  => {
       this.getAllPrefs();
       if (key === 'every'){
@@ -73,9 +65,9 @@ export class SettingsPage implements OnInit {
     this.prefs.remove('stazione');
     this.prefs.remove('notifica');
     this.prefs.remove('every');
-    this.prefsEveryNot = null;
-    this.prefsNotifica = null;
-    this.prefsStazione = null;
+    this.prefsEveryNot = undefined;
+    this.prefsNotifica = undefined;
+    this.prefsStazione = undefined;
   }
 
   deleteCache(){
@@ -85,9 +77,6 @@ export class SettingsPage implements OnInit {
     this.file.removeFile(this.file.dataDirectory, 'lista_stazioni.csv');
     this.file.removeRecursively(this.file.dataDirectory, 'nrt_arpac').then(_ => {
       this.file.createDir(this.file.dataDirectory, 'nrt_arpac', true);
-    });
-    this.file.listDir(this.file.dataDirectory, '.').then((dir) => {
-      console.log(dir);
     });
   }
 

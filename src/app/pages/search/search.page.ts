@@ -34,7 +34,7 @@ export class SearchPage implements OnInit {
   }
 
   changeView(a: string, b: string) {
-    document.querySelectorAll('#' + a + b).forEach((element) => {
+    document.querySelectorAll('#' + a + b.replace('.', '')).forEach((element) => {
       // @ts-ignore
       if (element.style.display === 'none') {
       // @ts-ignore

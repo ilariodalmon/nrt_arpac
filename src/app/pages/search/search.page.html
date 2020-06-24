@@ -31,7 +31,7 @@
                 <ion-label (click)="changeView(d.stazione,inq.inquinante)">
                   Inquinante: {{inq.inquinante}}
                 </ion-label>
-                <ion-row id="{{d.stazione}}{{inq.inquinante}}" style="display: none;" >
+                <ion-row id="{{d.stazione}}{{(inq.inquinante).replace('.','')}}" style="display: none;" >
                   <ion-row *ngFor="let inqList of inq.dati">
                     {{inqList.valore}}{{inq.um}} {{inqList.data_ora.substring(0,19)}}
                   </ion-row>

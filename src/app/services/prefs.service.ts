@@ -12,9 +12,10 @@ export class PrefsService {
 
   constructor(
     private prefs: AppPreferences
-  ) { }
+  ) {
+  }
 
-  getAllPrefs(){
+  getAllPrefs(): [string, boolean, number]{
     this.prefs.fetch('stazione').then((data: string) => {
       this.prefsStazione = data;
     });
@@ -24,6 +25,7 @@ export class PrefsService {
     this.prefs.fetch('every').then((data: number) => {
       this.prefsEveryNot = data;
     });
+    return [this.prefsStazione, this.prefsNotifica, this.prefsEveryNot];
   }
 
   changePrefs(key, value){

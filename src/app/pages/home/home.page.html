@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Near-Real-Time Arpac
+      Near-Real-Time
     </ion-title>
     <ion-button (click)="refreshData()" slot="end">
       ricarica
@@ -31,7 +31,7 @@
     <ion-item-group>
       <ion-item>
         <ion-title>
-          {{this.custom.descrizione}} (dati parziali)
+          {{this.custom.descrizione}}
         </ion-title>
       </ion-item>
       <ion-item *ngFor="let inq of this.custom.inquinanti" >

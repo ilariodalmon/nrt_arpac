@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="io.ionic.starter" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>MyApp</name>
-    <description>An awesome Ionic/Cordova app.</description>
-    <author email="hi@ionicframework.com" href="http://ionicframework.com/">Ionic Framework Team</author>
+    <name>NRT Arpac</name>
+    <description>Near Real Time Air Quality Campania.</description>
+    <author email="showdawn@protonmail.ch" href="https://dalmon.cloud/">ilariodalmon</author>
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
@@ -113,7 +113,5 @@
     <plugin name="cordova-plugin-background-mode" spec="^0.7.3" />
     <plugin name="cordova-plugin-local-notification" spec="^0.9.0-beta.2" />
     <plugin name="cordova-plugin-app-preferences" spec="git+https://bitbucket.org/packt-internal/cordova-plugin-app-preferences.git" />
-    <allow-navigation href="http://localhost:8102" sessionid="67ce9519" />
-    <allow-navigation href="http://localhost:8103" sessionid="54279bab" />
     <engine name="android" spec="8.1.0" />
 </widget>
