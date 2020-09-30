@@ -20,13 +20,15 @@ export class NrtService {
   actualData: NrtOrg[];
   actualDataTime: string;
   workDir = 'nrt_arpac';
+  loading: any;
 
   constructor(
     private ft: FileTransfer,
     private file: File,
     private fo: FileOpener,
     private ns: NativeStorage,
-    private prefs: AppPreferences) {
+    private prefs: AppPreferences
+    ) {
   }
 
   ////////////////////////////////////////////////////////////// RISTRUTTURIAMO /////////////////////////////////////////////////////////
@@ -56,21 +58,16 @@ export class NrtService {
   }
 
   async downloadLatestNrtCsv() {
-    this.ftc = this.ft.create();
-    await this.ftc.download(this.DATI_GREZZI_NEAR_REAL_TIME_URL, this.file.dataDirectory
-      + this.workDir + '/' + this.formatDate + '.csv').then((entry) => {
-      console.log('downloadLatestNrtCsv ok => ', entry);
-      this.ftc.abort();
-    }).catch((err) => {
-      console.log('downloadLatestNrtCsv bad => ', err);
-      this.ftc.abort();
-      this.file.listDir(this.file.dataDirectory, 'nrt_arpac').then(list => {
-        console.log(list);
-      });
-      this.file.removeFile(this.file.dataDirectory, this.formatDate + '.csv').then(_ => {
-      });
-      this.downloadLatestNrtCsv();
-    });
+
+    fetch('https://www.google.it').then((res: any) => {
+      console.log(res)
+    })
+    
+    fetch(this.DATI_GREZZI_NEAR_REAL_TIME_URL).then((res: any) => {
+      console.log(res)
+      this.file.writeFile(this.file.dataDirectory + this.workDir + '/', this.formatDate + '.csv', res)
+    })
+
   }
 
   async fsCsvToNrtOrgArray() {
@@ -145,9 +142,9 @@ export class NrtService {
       });
     }).catch((err) => {
       console.log('Error on Download', err);
+      this.ftc.abort();
       this.getStazioni();
     });
-    this.ftc.abort();
   }
 
   async openTodayData() {
@@ -257,7 +254,12 @@ export class NrtService {
   }
 
   deleteCache(){
-    this.file.removeRecursively(this.file.dataDirectory, 'nrt_arpac');
+    this.file.removeRecursively(this.file.dataDirectory, 'nrt_arpac').then(_ => {
+      this.file.createDir(this.file.dataDirectory, 'nrt_arpac', true);
+    });
+    this.file.listDir(this.file.dataDirectory, '.').then((dir) => {
+      console.log(dir);
+    })
   }
 
 }

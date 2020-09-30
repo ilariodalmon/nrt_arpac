@@ -7,6 +7,7 @@
       ricarica
       <ion-icon name="refresh-circle-outline"></ion-icon>
     </ion-button>
+    <ion-progress-bar *ngIf="this.progress>=0 && this.progress<100" value={{progress}} buffer="0"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 

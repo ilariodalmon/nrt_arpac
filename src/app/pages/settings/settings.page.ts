@@ -50,6 +50,9 @@ export class SettingsPage implements OnInit {
       this.stazioni = stazioni;
     }).catch((err) => {
       console.log('Error', err);
+      this.nrt.getStazioni().then((ok) => {
+        this.getStazioni();
+      })
     });
   }
 
@@ -78,6 +81,8 @@ export class SettingsPage implements OnInit {
 
   deleteCache(){
     this.nrt.deleteCache();
+    this.ns.remove('latest_nrt_data');
+    this.ns.remove('lista_stazioni');
   }
 
 }

@@ -4,6 +4,7 @@ import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { NrtService } from './services/nrt.service';
+import { File } from '@ionic-native/file/ngx';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,8 @@ export class AppComponent {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private nrt: NrtService
+    private nrt: NrtService,
+    private file: File
   ) {
     this.initializeApp();
   }
@@ -29,7 +31,13 @@ export class AppComponent {
   }
 
   initData(){
-    this.nrt.refreshData();
+    this.file.checkDir(this.file.dataDirectory, 'nrt_arpac').then(_ =>{
+      this.nrt.refreshData();
+    }).catch(_ => {
+      this.file.createDir(this.file.dataDirectory, 'nrt_arpac', false).then(_ => {
+        this.nrt.refreshData();
+      })
+    });
   }
 
 }

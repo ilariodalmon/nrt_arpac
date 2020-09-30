@@ -26,7 +26,7 @@ export class PrefsService {
     });
   }
 
-  changePrefs(key, value){
+  changePrefs(key: string, value: any){
     this.prefs.store(key, value);
   }
 }

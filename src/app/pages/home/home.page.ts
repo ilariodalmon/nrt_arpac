@@ -20,6 +20,7 @@ export class HomePage {
   custom: NrtOrg;
   msg: string;
   lastFetch: string;
+  progress: number;
 
   constructor(
     private ns: NativeStorage,
@@ -60,10 +61,12 @@ export class HomePage {
     return color;
   }
 
-  refreshData(){
-    this.nrt.refreshData();
+  async refreshData(){
+    this.progress = 0;
+    await this.nrt.refreshData();
+    this.progress = 100;
     this.ns.getItem('latest_nrt_data').then((data) => {
-      console.log(data);
+      //console.log(data);
       this.all = data.array;
       this.lastFetch = data.time;
       this.getPrefsStazione().then(_ => {
