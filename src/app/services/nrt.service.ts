@@ -1,7 +1,6 @@
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { Injectable } from '@angular/core';
 import { File } from '@ionic-native/file/ngx';
-import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer/ngx';
 import { FileOpener } from '@ionic-native/file-opener/ngx';
 import { NrtOrg } from '../classes/nrt-org';
 import { AppPreferences } from '@ionic-native/app-preferences/ngx';
@@ -14,21 +13,16 @@ export class NrtService {
 // TODO http://cemec.arpacampania.it/meteoambientecampania/php/misure_suolo.php
 
   formatDate = (new Date().toISOString().substring(0, 10)).replace('-', '').replace('-', '');
-  DATI_GREZZI_NEAR_REAL_TIME_URL = 'http://cemec.arpacampania.it/meteoambientecampania/php/downloadFileDati.php?path=/var/www/html/meteoambientecampania/prodotti/aria/arpac_dati_centraline_' + this.formatDate + '.csv';
-  STAZIONI_NRT_URL = 'http://cemec.arpacampania.it/meteoambientecampania/prodotti/aria/stazioni.csv';
-  ftc: FileTransferObject;
   actualData: NrtOrg[];
   actualDataTime: string;
-  workDir = 'nrt_arpac';
-  loading: any;
+  workDir = this.file.dataDirectory + 'nrt_arpac/';
+  secret = 'xxx';
 
   constructor(
-    private ft: FileTransfer,
     private file: File,
     private fo: FileOpener,
     private ns: NativeStorage,
-    private prefs: AppPreferences
-    ) {
+    private prefs: AppPreferences) {
   }
 
   ////////////////////////////////////////////////////////////// RISTRUTTURIAMO /////////////////////////////////////////////////////////
@@ -36,38 +30,100 @@ export class NrtService {
   // NativeStorage => "latest_nrt_data"
   async refreshData() {
     this.getStazioni();
-    this.downloadLatestNrtCsv().then((ok) => {
-      this.fsCsvToNrtOrgArray().then((nrtOrgArray: NrtOrg[]) => {
-        console.log('got array: ', nrtOrgArray);
-        if (nrtOrgArray !== undefined){
-          this.prefs.fetch('stazione').then((stazione) => {
-            this.ns.setItem('latest_nrt_custom', nrtOrgArray.find(x => x.stazione === stazione));
-          });
-          this.ns.setItem('latest_nrt_data', { array: nrtOrgArray, time: (new Date().toISOString()) }).then(_ => {
-            console.log('successfully saved nrtOrgArray on native storage as \'latest_nrt_data\'');
-          }).catch((err) => {
-            console.log('failed setItem of \'latest_nrt_data\'');
-          });
-        }
-      }).catch((err) => {
-        console.log('failed conversion', err);
-      });
-    }).catch((err) => {
-      console.log('failed download', err);
+    this.downloadLatestNrtCsv();
+  }
+
+  async checkDirs(){
+    return this.file.checkDir(this.file.dataDirectory, 'nrt_arpac').then((ok) => {
+    }).catch((noDir) => {
+      this.file.createDir(this.file.dataDirectory, 'nrt_arpac', false);
     });
   }
 
   async downloadLatestNrtCsv() {
+    const opts = {
+      method: 'POST',
+      body: 'auth=' + this.secret + '&url=url_dati_centraline',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    };
+    fetch('https://www.dalmon.cloud/cors-proxy/nrt_arpac.php', opts).then((res: any) => {
+      return res.text();
+    }).then((res) => {
+      if ('Warning' in res){
+        return;
+      }
+      const arr = this.csvToNrtClass(res);
+      this.prefs.fetch('stazione').then((stazione) => {
+        const custom = arr.find((x) => x.stazione === stazione);
+        this.ns.setItem('custom_nrt_data', custom);
+      });
+      this.ns.setItem('latest_nrt_data', {time: new Date(), array: arr});
+      this.file.removeFile(this.workDir, this.formatDate + '.csv').then(_ => {
+        this.file.writeFile(this.workDir, this.formatDate + '.csv', res);
+      });
+    });
+  }
 
-    fetch('https://www.google.it').then((res: any) => {
-      console.log(res)
-    })
-    
-    fetch(this.DATI_GREZZI_NEAR_REAL_TIME_URL).then((res: any) => {
-      console.log(res)
-      this.file.writeFile(this.file.dataDirectory + this.workDir + '/', this.formatDate + '.csv', res)
-    })
-
+  csvToNrtClass(csv: string){
+    const array = csv.split('\n').map(x => x.split(','));
+    const nrtArray = new Array<NrtOrg>();
+    // OTTENGO TUTTI I NOMI
+    const arrayNomi = new Array();
+    array.forEach((e) => {
+      if (arrayNomi.findIndex((el) => el[0] === e[0]) === -1) {
+        arrayNomi.push([e[0], e[1]]);
+      }
+    });
+    arrayNomi.shift();
+    // CICLO SUI NOMI X
+    arrayNomi.forEach((an) => {
+      const nome = an[0];
+      const desc = an[1];
+      let tempNrt = new NrtOrg();
+      // OTTENGO TUTTI QUELLI CON LO STESSO NOME X
+      const filByNome = array.filter((el) => el[0] === nome);
+      const arrayInq = new Array();
+      // OTTENGO TUTTI GLI INQUINANTI PER QUEL NOME X
+      filByNome.forEach((fbn) => {
+        if (arrayInq.findIndex((el) => el[0] === fbn[2]) === -1) {
+          arrayInq.push([fbn[2], fbn[3]]);
+        }
+      });
+      const tempInquinati = new Array();
+      // CICLO SUGLI INQUINANTI Z
+      arrayInq.forEach((iq) => {
+        const inq = iq[0];
+        const umz = iq[1];
+        // OTTENGO TUTTI QUELLI CON LO STESSO (NOME X E) INQUINANTE Z
+        const filByInq = filByNome.filter((el) => el[2] === inq);
+        // SALVO L'ARRAY DEI DATI E ORA
+        const dati = filByInq.map((m) => {
+          return {
+            data_ora: m[4],
+            valore: m[5],
+          };
+        });
+        tempInquinati.push({
+          inquinante: inq,
+          um: umz,
+          dati,
+        });
+      });
+      tempNrt = {
+        stazione: nome,
+        descrizione: desc,
+        inquinanti: tempInquinati,
+      };
+      nrtArray.push(tempNrt);
+    });
+    this.actualData = nrtArray;
+    this.actualDataTime =
+      nrtArray[0].inquinanti[0].dati[
+        nrtArray[0].inquinanti[0].dati.length - 1
+      ].data_ora;
+    return nrtArray;
   }
 
   async fsCsvToNrtOrgArray() {
@@ -133,22 +189,30 @@ export class NrtService {
 
   // NativeStorage => "lista_stazioni"
   async getStazioni() {
-    this.ftc = this.ft.create();
-    await this.ftc.download(this.STAZIONI_NRT_URL, this.file.dataDirectory
-      + this.workDir + '/' + 'lista_stazioni' + '.csv').then((entry) => {
-      this.file.readAsText(this.file.dataDirectory, 'lista_stazioni' + '.csv').then(async (result) => {
-        const stazioni = result.split('\n').map(x => x.split(','));
-        await this.ns.setItem('lista_stazioni', stazioni);
+    const opts = {
+      method: 'POST',
+      body: 'auth=' + this.secret + '&url=url_stazioni',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    };
+    fetch('https://www.dalmon.cloud/cors-proxy/nrt_arpac.php', opts).then((res: any) => {
+      return res.text();
+    }).then((res) => {
+      if ('Warning' in res){
+        return;
+      }
+      const stazioni = res.split('\n').map(x => x.split(','));
+      console.log(stazioni);
+      this.ns.setItem('lista_stazioni', stazioni);
+      this.file.removeFile(this.workDir, this.formatDate + '.csv').then(_ => {
+        this.file.writeFile(this.workDir, 'lista_stazioni.csv', stazioni);
       });
-    }).catch((err) => {
-      console.log('Error on Download', err);
-      this.ftc.abort();
-      this.getStazioni();
     });
   }
 
   async openTodayData() {
-    await this.fo.open(this.file.dataDirectory + this.workDir + '/' + this.formatDate + '.csv', 'text/csv');
+    await this.fo.open(this.workDir + '/' + this.formatDate + '.csv', 'text/csv');
   }
 
   getColoreByValore(inquinante: string, valore: number): string {
@@ -251,15 +315,6 @@ export class NrtService {
       }
     });
     return this.getTextByNumber(worst);
-  }
-
-  deleteCache(){
-    this.file.removeRecursively(this.file.dataDirectory, 'nrt_arpac').then(_ => {
-      this.file.createDir(this.file.dataDirectory, 'nrt_arpac', true);
-    });
-    this.file.listDir(this.file.dataDirectory, '.').then((dir) => {
-      console.log(dir);
-    })
   }
 
 }

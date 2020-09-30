@@ -4,7 +4,8 @@ import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { NrtService } from './services/nrt.service';
-import { File } from '@ionic-native/file/ngx';
+import { PrefsService } from './services/prefs.service';
+import { BgService } from './services/bg.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,8 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private nrt: NrtService,
-    private file: File
+    private prefs: PrefsService,
+    private bg: BgService
   ) {
     this.initializeApp();
   }
@@ -27,17 +29,20 @@ export class AppComponent {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
       this.initData();
+      this.startNotificationIfEnabled();
     });
   }
 
   initData(){
-    this.file.checkDir(this.file.dataDirectory, 'nrt_arpac').then(_ =>{
+    this.nrt.checkDirs().then(_ => {
       this.nrt.refreshData();
-    }).catch(_ => {
-      this.file.createDir(this.file.dataDirectory, 'nrt_arpac', false).then(_ => {
-        this.nrt.refreshData();
-      })
     });
+  }
+
+  startNotificationIfEnabled(){
+    const prefs = this.prefs.getAllPrefs();
+    this.bg.startNotifications(prefs[1], prefs[2]);
+
   }
 
 }
